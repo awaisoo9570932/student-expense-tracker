@@ -5,15 +5,45 @@ import joblib
 import os
 
 # Page Configuration
-st.set_page_config(page_title="Lahore Student Expense Tracker", layout="centered")
+st.set_page_config(
+    page_title="Lahore Student Expense Tracker", 
+    page_icon="🎓",
+    layout="centered"
+)
+
+# Custom Styling
+st.markdown("""
+    <style>
+    .main { background-color: #f5f7fa; }
+    .stButton>button { width: 100%; border-radius: 8px; background-color: #FF4B4B; color: white; font-weight: bold; }
+    </style>
+""", unsafe_allow_html=True)
+
 st.title("🎓 Lahore Student Monthly Expense Tracker")
+
+# Mobile Instructions Help Box
+with st.expander("📱 Mobile Phone Par As A Downloadable App Kaise Chalayein?"):
+    st.markdown("""
+    ### 📱 Mobile App Kaise Banayein?
+    Agar aapko direct link kholne par setting mein option nahi mil raha, toh yeh steps follow karain:
+    
+    **Android (Google Chrome):**
+    1. WhatsApp se yeh link copy karain aur direct **Google Chrome App** khol kar wahan upar paste karain.
+    2. Jab website khul jaye, toh Chrome ke upar daen taraf **3 dots (...)** par click karain.
+    3. List mein neeche dekhein, wahan **`Add to Home screen`** ya **`Install app`** likha hoga. Us par click kar dein!
+    
+    **iPhone (Safari Browser):**
+    1. Link ko direct **Safari Browser** mein open karain.
+    2. Neeche center mein **Share button** (square dabba aur upar arrow) par click karain.
+    3. Thoda neeche scroll karke **`Add to Home Screen`** par click kar dein!
+    """)
 
 # Model Load karna
 model_path = "student_expense_model.pkl"
 if os.path.exists(model_path):
     model = joblib.load(model_path)
 else:
-    st.error("Machine Learning Model (.pkl file) nahi mili! Yaqeen karain ke aapne file ka naam sahi rakha hai.")
+    st.error("Machine Learning Model (.pkl file) nahi mili!")
     st.stop()
 
 # Local database file (CSV) setup taake data save rahe
@@ -43,21 +73,17 @@ shopping_price = st.number_input("Shopping / Face wash / Other (PKR):", min_valu
 
 # --- SAVE & PREDICT ---
 if st.button("Save Daily Expense"):
-    # ML model ke liye features tayar karna
     features = np.array([[bf_skipped, bf_price, dinner_price, fruits_price, books_price, shopping_price]])
-    
-    # Model se prediction lena
     predicted_total = model.predict(features)
     actual_total = bf_price + dinner_price + fruits_price + books_price + shopping_price
     
-    # Data ko CSV mein save karna
     new_row = [date, bf_price, dinner_price, fruits_price, books_price, shopping_price, actual_total]
     df_db = pd.read_csv(db_file)
     df_db.loc[len(df_db)] = new_row
     df_db.to_csv(db_file, index=False)
     
     st.success(f"🎉 Kharcha save ho gaya! Actual Total: {actual_total} PKR")
-    st.info(f"🤖 ML Model Prediction (Estimated Total): {predicted_total[0]:.2f} PKR")
+    st.info(f"🤖 ML Model Prediction (Estimated Total): {predicted_total:.2f} PKR")
 
 # --- MONTHLY ANALYSIS ---
 st.markdown("---")
@@ -70,7 +96,6 @@ if not df_db.empty:
     total_monthly = df_db["Total"].sum()
     st.metric(label="💵 Is Mahine Ka Kul Karcha", value=f"{total_monthly} PKR")
     
-    # Breakdown Table
     st.subheader("Portion Wise Breakdown")
     breakdown = {
         "Portion": ["Breakfast", "Dinner", "Fruits", "Books/Study", "Shopping"],
