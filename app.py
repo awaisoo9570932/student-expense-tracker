@@ -7,9 +7,14 @@ import plotly.express as px
 
 # Page Configuration for Professional App
 st.set_page_config(
+# Page Configuration (Hamesha Sidebar Khula Rakhne Ke Liye)
+st.set_page_config(
     page_title="Student Expense Analyzer Pro", 
     page_icon="📊",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"  # Is se sidebar hamesha khula rahe ga
+)
+
 )
 
 # Custom Premium Styling (Dashboard Look)
